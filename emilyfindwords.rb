@@ -1,57 +1,66 @@
+$lines = []
 def getFile(name)
     fileObj = File.open(name)
     fileObj.read()
 end
 
-def wordCountTable(filename)
+def wordLineTable(filename)
     text = getFile(filename)
-    words = text.split(" ")
+    $lines = text.split("\n")
     table = {}
-    words.each do |w|
-        # Remove punctuation, make lower case
-        w=w.gsub(/\W/, ' ').downcase  
-        # either make new entry, or increment entry
-        if table.key?(w)
-            table[w] = table[w]+1
-        else 
-            table[w] = 1
+    lineNm = 0
+    $lines.each do |l|
+        words = l.split(" ")
+        words.each do |w|
+            # Remove punctuation, make lower case
+            w=w.gsub(/\W/, ' ').downcase  
+            # either make new entry, or increment entry
+            if table.key?(w)
+                table[w]<<lineNm
+            else
+                table[w] = [lineNm] 
+            end
         end
+        lineNm=lineNm+1
     end
-    print table.class,"\n"
+
     table
  end
 
 def displayTableAlpha(table)
     table = Hash[table.sort_by { |key, value| key}]
-    table.each do |key,word|
-        print key,"->",word,"\n"
+    table.each do |key,list|
+        print key,"->",list,"\n"
     end
 end
 
-def displayTableCount(table)
-    table = Hash[table.sort_by { |key, value| value}]
-    table.each do |key,word|
-        print key,"->",word,"\n"
-    end
-end
+def printMatchingLines(table,word)
+    results = []
+    prev = -1
+    if table.key?(word)
+        table[word].each do |index|
+            if index!=prev
+                print index,". ",$lines[index],"\n"
+            end
+            prev = index
+        end
+    else
+        print word, " Not found","\n"
+    end  
+end  
 
 def lookupWords(table)
-    print table.class,"\n"
     while true
         print "word to lookup:"
         w = gets.chomp
         if w.length<1
             break
         end
-        if table.key?(w)
-            print w," occurs ",table[w]," times.","\n"
-        else 
-            print w," not in text","\n"
-        end 
+        printMatchingLines(table,w)
     end 
 end  
 
-table=wordCountTable("emilydickenson.txt")
+table=wordLineTable("emilydickenson.txt")
 print "total uniqu words:",table.length,"\n"
-displayTableCount(table)
+#displayTableAlpha(table)
 lookupWords(table)
