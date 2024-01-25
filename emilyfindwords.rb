@@ -1,15 +1,22 @@
-$lines = []
-def getFile(name)
+# Read file and return at an array of lines
+def getFileLines(name)
     fileObj = File.open(name)
-    fileObj.read()
+    text = fileObj.read()
+    text.split("\n")
 end
 
-def wordLineTable(filename)
-    text = getFile(filename)
-    $lines = text.split("\n")
+# Display all the line in an array of text strings
+def displayLines(lines)
+    lines.each do |l|
+      print l,"\n"
+    end
+end
+
+
+def createWordLineTable(lines)
     table = {}
     lineNm = 0
-    $lines.each do |l|
+    lines.each do |l|
         words = l.split(" ")
         words.each do |w|
             # Remove punctuation, make lower case
@@ -23,7 +30,6 @@ def wordLineTable(filename)
         end
         lineNm=lineNm+1
     end
-
     table
  end
 
@@ -34,13 +40,12 @@ def displayTableAlpha(table)
     end
 end
 
-def printMatchingLines(table,word)
-    results = []
+def printMatchingLines(table,lines,word)
     prev = -1
     if table.key?(word)
         table[word].each do |index|
             if index!=prev
-                print index,". ",$lines[index],"\n"
+                print index,". ",lines[index],"\n"
             end
             prev = index
         end
@@ -49,18 +54,21 @@ def printMatchingLines(table,word)
     end  
 end  
 
-def lookupWords(table)
+def lookupWords(table,lines)
     while true
         print "word to lookup:"
         w = gets.chomp
         if w.length<1
             break
         end
-        printMatchingLines(table,w)
+        printMatchingLines(table,lines,w)
     end 
 end  
 
-table=wordLineTable("emilydickenson.txt")
-print "total uniqu words:",table.length,"\n"
+lines=getFileLines("emilydickenson.txt")
+
+table=createWordLineTable(lines)
+#print table,"\n"
+print "total unique words:",table.length,"\n"
 #displayTableAlpha(table)
-lookupWords(table)
+lookupWords(table,lines)
